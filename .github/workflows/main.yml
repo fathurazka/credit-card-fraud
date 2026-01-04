@@ -86,8 +86,8 @@ jobs:
           import mlflow
           from mlflow.tracking import MlflowClient
           client = MlflowClient()
-          experiment = client.get_experiment_by_name('Default')
-          runs = client.search_runs(experiment_ids=[experiment.experiment_id], order_by=['start_time DESC'], max_results=1)
+          # Use experiment ID 0 (default experiment)
+          runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1)
           print(runs[0].info.run_id if runs else '')
           ")
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
