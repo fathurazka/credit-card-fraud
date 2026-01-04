@@ -30,7 +30,7 @@ if __name__ == "__main__":
     #dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
     #mlflow.set_experiment("Fraud_Detection")
     
-    #mlflow.set_tracking_uri("file:./mlruns")
+    mlflow.set_tracking_uri("file:./mlruns")
     
     
     param_grid = [
