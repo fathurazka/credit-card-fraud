@@ -8,7 +8,7 @@ import numpy as np
 import os
 import warnings
 import sys
-#import dagshub
+import dagshub
 import matplotlib.pyplot as plt
 #import seaborn as sns
 
@@ -27,11 +27,11 @@ if __name__ == "__main__":
     input_example = X_train[0:5]
     max_iter = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
 
-    #dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    
     #mlflow.set_experiment("Fraud_Detection")
     
     mlflow.set_tracking_uri("file:./mlruns")
-    
+    dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
     
     param_grid = [
         {
