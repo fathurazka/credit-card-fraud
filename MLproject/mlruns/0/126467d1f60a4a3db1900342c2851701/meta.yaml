@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/126467d1f60a4a3db1900342c2851701/artifacts
+end_time: 1767546601497
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 126467d1f60a4a3db1900342c2851701
+run_name: judicious-roo-917
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767546549602
+status: 3
+tags: []
+user_id: fathurazka
