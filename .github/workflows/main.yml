@@ -47,7 +47,6 @@ jobs:
       - name: Configure DagsHub
         run: |
           dagshub login --token ${{ secrets.DAGSHUB_TOKEN }}
-          dagshub init --repo ${{ secrets.DAGSHUB_REPO_NAME }} --username ${{ secrets.DAGSHUB_USERNAME }}
           
       # Run as a mlflow project
       - name: Run mlflow project
