@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/0fe554b3f5e2454a98b4b6f841bd1bd9/artifacts
+end_time: 1767547725507
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 0fe554b3f5e2454a98b4b6f841bd1bd9
+run_name: handsome-lamb-593
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767547681369
+status: 3
+tags: []
+user_id: fathurazka
