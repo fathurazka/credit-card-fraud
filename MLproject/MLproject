@@ -1,0 +1,10 @@
+name: credit-card-fraud
+
+conda_env: conda.yaml
+
+entry_points:
+  main:
+    parameters:
+      max_iter: {type: int, default: 1000}
+      dataset : {type: string, default: "dataset.csv"}
+    command: "python modelling_tuning.py {max_iter} {dataset}"
