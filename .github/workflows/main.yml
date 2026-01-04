@@ -11,7 +11,7 @@ on:
 env:
   CSV_URL: "MLproject/dataset.csv"
   TARGET_VAR: "fraud"
-  MLFLOW_TRACKING_URI: "file:./mlruns"
+  #MLFLOW_TRACKING_URI: "file:./mlruns"
 
 jobs:
   build:
