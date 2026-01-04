@@ -1,4 +1,5 @@
 name: CI/CD MLflow
+
 on:
   push:
     branches:
@@ -6,22 +7,23 @@ on:
   pull_request:
     branches:
       - main
+
 env:
   CSV_URL: "MLproject/dataset.csv"
   TARGET_VAR: "fraud"
-  # Keep local tracking for compatibility
   MLFLOW_TRACKING_URI: "file:./MLproject/mlruns"
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v3
-      
-      # Setup Python 3.11.5
+
+      # Setup Python 3.12.7
       - name: Set up Python 3.11.5
         uses: actions/setup-python@v4
         with:
@@ -31,138 +33,52 @@ jobs:
       - name: Check Env
         run: |
           echo $CSV_URL
-          echo "MLflow Tracking URI: $MLFLOW_TRACKING_URI"
-          
-      # Install dependencies
+      # Install mlflow
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install mlflow  
           pip install imbalanced-learn
           pip install dagshub
-      
-      # Configure DagsHub
-      - name: Configure DagsHub
-        env:
-          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-        run: |
-          dagshub login --token ${{ secrets.DAGSHUB_TOKEN }}
-          export DAGSHUB_USER_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
-          echo "DAGSHUB_USER_TOKEN=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
           
       # Run as a mlflow project
       - name: Run mlflow project
-        env:
-          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          # Run the Python script directly instead of using mlflow run
-          cd MLproject
-          python modelling_tuning.py 1000 dataset.csv
-          
-      # Save models to GitHub Repository (optional - models are in DagsHub)
+          mlflow run MLproject --env-manager=local
+
+      # Save models to GitHub Repository
       - name: Save mlruns to repo
         run: |
           git config --global user.name "${{ secrets.username }}"
           git config --global user.email "${{ secrets.email }}"
-          if [ -d "MLproject/mlruns" ]; then
-            git add MLproject/mlruns/
-            git commit -m "Save mlruns from CI run" || echo "No changes to commit"
-            git push origin main
-          fi
+          git add MLproject/mlruns/
+          git commit -m "Save mlruns from CI run"
+          git push origin main
       
-      # Get latest run_id from DagsHub
+      # Get latest run_id
       - name: Get latest MLflow run_id
-        env:
-          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          python > run_info.txt << 'PYTHON_SCRIPT'
-          import mlflow
-          from mlflow.tracking import MlflowClient
-          import sys
-          
-          client = MlflowClient()
-          runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1)
-          
-          if runs:
-              run = runs[0]
-              artifacts = client.list_artifacts(run.info.run_id)
-              artifact_paths = [a.path for a in artifacts]
-              
-              print(f"RUN_ID={run.info.run_id}", file=sys.stderr)
-              print(f"Artifacts found: {artifact_paths}", file=sys.stderr)
-              print(run.info.run_id)
-          else:
-              print("No runs found", file=sys.stderr)
-              sys.exit(1)
-          PYTHON_SCRIPT
-          
-          RUN_ID=$(cat run_info.txt)
+          RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
           
-      # Verify run has model artifact
-      - name: Verify model artifact
-        env:
-          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-        run: |
-          python -c "
-          import mlflow
-          from mlflow.tracking import MlflowClient
-          client = MlflowClient()
-          artifacts = client.list_artifacts('$RUN_ID')
-          print('Available artifacts:')
-          for artifact in artifacts:
-              print(f'  - {artifact.path}')
-          
-          # Check if model exists
-          model_artifacts = [a for a in artifacts if a.path == 'model']
-          if not model_artifacts:
-              print('WARNING: No model artifact found in this run!')
-              exit(1)
-          else:
-              print('✓ Model artifact found')
-          "
-          
       # Build Docker Model
       - name: Build Docker Model
-        env:
-          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          echo "Building Docker image for run: $RUN_ID"
-          # Download model locally first
-          python -c "
-          import mlflow
-          mlflow.artifacts.download_artifacts(run_id='$RUN_ID', artifact_path='model', dst_path='./downloaded_model')
-          print('Model downloaded successfully')
-          "
-          # Build Docker image from local model
-          mlflow models build-docker \
-            --model-uri "./downloaded_model/model" \
-            --name "credit-card-fraud" 
-          
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
+
       # Login to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
-          
+
       # Tag the Docker image
       - name: Tag Docker Image
         run: |
           docker tag credit-card-fraud ${{ secrets.DOCKER_HUB_USERNAME }}/credit-card-fraud:latest
-          
+
       # Push Docker image to Docker Hub
       - name: Push Docker Image
         run: |
