@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/c8b2af78c9894ce095934a4953ea1677/artifacts
+end_time: 1767547936828
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: c8b2af78c9894ce095934a4953ea1677
+run_name: judicious-ram-451
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767547889155
+status: 3
+tags: []
+user_id: fathurazka
