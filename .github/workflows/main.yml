@@ -9,10 +9,8 @@ on:
 env:
   CSV_URL: "MLproject/dataset.csv"
   TARGET_VAR: "fraud"
-  # DagsHub MLflow tracking URI
-  MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
-  MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-  MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+  # Keep local tracking for compatibility
+  MLFLOW_TRACKING_URI: "file:./MLproject/mlruns"
   
 jobs:
   build:
@@ -45,11 +43,22 @@ jobs:
       
       # Configure DagsHub
       - name: Configure DagsHub
+        env:
+          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           dagshub login --token ${{ secrets.DAGSHUB_TOKEN }}
+          export DAGSHUB_USER_TOKEN=${{ secrets.DAGSHUB_TOKEN }}
+          echo "DAGSHUB_USER_TOKEN=${{ secrets.DAGSHUB_TOKEN }}" >> $GITHUB_ENV
           
       # Run as a mlflow project
       - name: Run mlflow project
+        env:
+          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           mlflow run MLproject --env-manager=local
           
