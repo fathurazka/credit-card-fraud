@@ -11,7 +11,7 @@ on:
 env:
   CSV_URL: "MLproject/dataset.csv"
   TARGET_VAR: "fraud"
-  MLFLOW_TRACKING_URI: "file:./MLproject/mlruns"
+  MLFLOW_TRACKING_URI: "file:./mlruns"
 
 jobs:
   build:
@@ -50,7 +50,7 @@ jobs:
         run: |
           git config --global user.name "${{ secrets.username }}"
           git config --global user.email "${{ secrets.email }}"
-          git add MLproject/mlruns/
+          git add mlruns/
           git commit -m "Save mlruns from CI run"
           git push origin main
       
