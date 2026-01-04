@@ -88,10 +88,42 @@ jobs:
           client = MlflowClient()
           # Use experiment ID 0 (default experiment)
           runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1)
-          print(runs[0].info.run_id if runs else '')
+          if runs:
+              run = runs[0]
+              print(run.info.run_id)
+              # Verify the model artifact exists
+              artifacts = client.list_artifacts(run.info.run_id)
+              print(f'Artifacts: {[a.path for a in artifacts]}', flush=True)
+          else:
+              print('No runs found')
           ")
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
+          
+      # Verify run has model artifact
+      - name: Verify model artifact
+        env:
+          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          python -c "
+          import mlflow
+          from mlflow.tracking import MlflowClient
+          client = MlflowClient()
+          artifacts = client.list_artifacts('$RUN_ID')
+          print('Available artifacts:')
+          for artifact in artifacts:
+              print(f'  - {artifact.path}')
+          
+          # Check if model exists
+          model_artifacts = [a for a in artifacts if a.path == 'model']
+          if not model_artifacts:
+              print('WARNING: No model artifact found in this run!')
+              exit(1)
+          else:
+              print('✓ Model artifact found')
+          "
           
       # Build Docker Model
       - name: Build Docker Model
@@ -100,7 +132,17 @@ jobs:
           MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
+          echo "Building Docker image for run: $RUN_ID"
+          # Download model locally first
+          python -c "
+          import mlflow
+          mlflow.artifacts.download_artifacts(run_id='$RUN_ID', artifact_path='model', dst_path='./downloaded_model')
+          print('Model downloaded successfully')
+          "
+          # Build Docker image from local model
+          mlflow models build-docker \
+            --model-uri "./downloaded_model/model" \
+            --name "credit-card-fraud" 
           
       # Login to Docker Hub
       - name: Log in to Docker Hub
