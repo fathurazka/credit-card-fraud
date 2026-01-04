@@ -60,7 +60,9 @@ jobs:
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
           DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          mlflow run MLproject --env-manager=local
+          # Run the Python script directly instead of using mlflow run
+          cd MLproject
+          python modelling_tuning.py 1000 dataset.csv
           
       # Save models to GitHub Repository (optional - models are in DagsHub)
       - name: Save mlruns to repo
@@ -75,6 +77,10 @@ jobs:
       
       # Get latest run_id from DagsHub
       - name: Get latest MLflow run_id
+        env:
+          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           RUN_ID=$(python -c "
           import mlflow
@@ -89,6 +95,10 @@ jobs:
           
       # Build Docker Model
       - name: Build Docker Model
+        env:
+          MLFLOW_TRACKING_URI: "https://dagshub.com/${{ secrets.DAGSHUB_USERNAME }}/${{ secrets.DAGSHUB_REPO_NAME }}.mlflow"
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
           mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
           
