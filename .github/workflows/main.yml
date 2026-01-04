@@ -82,21 +82,28 @@ jobs:
           MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
           MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
         run: |
-          RUN_ID=$(python -c "
+          python > run_info.txt << 'PYTHON_SCRIPT'
           import mlflow
           from mlflow.tracking import MlflowClient
+          import sys
+          
           client = MlflowClient()
-          # Use experiment ID 0 (default experiment)
           runs = client.search_runs(experiment_ids=['0'], order_by=['start_time DESC'], max_results=1)
+          
           if runs:
               run = runs[0]
-              print(run.info.run_id)
-              # Verify the model artifact exists
               artifacts = client.list_artifacts(run.info.run_id)
-              print(f'Artifacts: {[a.path for a in artifacts]}', flush=True)
+              artifact_paths = [a.path for a in artifacts]
+              
+              print(f"RUN_ID={run.info.run_id}", file=sys.stderr)
+              print(f"Artifacts found: {artifact_paths}", file=sys.stderr)
+              print(run.info.run_id)
           else:
-              print('No runs found')
-          ")
+              print("No runs found", file=sys.stderr)
+              sys.exit(1)
+          PYTHON_SCRIPT
+          
+          RUN_ID=$(cat run_info.txt)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
           
