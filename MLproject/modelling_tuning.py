@@ -30,7 +30,7 @@ if __name__ == "__main__":
     
     #mlflow.set_experiment("Fraud_Detection")
     
-    mlflow.set_tracking_uri("file:./mlruns")
+    # Initialize DagsHub - this automatically configures MLflow tracking URI
     dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
     
     param_grid = [
