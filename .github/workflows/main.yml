@@ -61,11 +61,30 @@ jobs:
           RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Latest run_id: $RUN_ID"
-          
-      # Build Docker Model
-      - name: Build Docker Model
+      
+      # Export model to simple joblib format
+      - name: Export model to joblib
         run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
+          python -c "
+          import mlflow
+          import joblib
+          import os
+          
+          mlflow.set_tracking_uri('file:./MLproject/mlruns')
+          run_id = os.environ['RUN_ID']
+          
+          # Load the MLflow model
+          model = mlflow.sklearn.load_model(f'runs:/{run_id}/model')
+          
+          # Save as simple joblib
+          joblib.dump(model, 'MLproject/model.joblib')
+          print('Model exported to MLproject/model.joblib')
+          "
+          
+      # Build lightweight Docker image
+      - name: Build Docker Image
+        run: |
+          docker build -t credit-card-fraud . 
 
       # Login to Docker Hub
       - name: Log in to Docker Hub
