@@ -1,0 +1,11 @@
+# Render Blueprint for deploying the MLflow model Docker container
+services:
+  - type: web
+    name: credit-card-fraud-api
+    runtime: image
+    image:
+      url: docker.io/fathurazka/credit-card-fraud:latest
+    envVars:
+      - key: PORT
+        value: 8080
+    healthCheckPath: /ping
