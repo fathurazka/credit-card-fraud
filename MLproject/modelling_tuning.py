@@ -89,3 +89,7 @@ if __name__ == "__main__":
         })
         
         #mlflow.log_params(clf.best_params_)
+        
+        # Output run_id for CI pipeline to capture
+        run_id = mlflow.active_run().info.run_id
+        print(f"MLFLOW_RUN_ID={run_id}")

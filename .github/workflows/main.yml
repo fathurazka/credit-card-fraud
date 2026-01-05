@@ -48,17 +48,14 @@ jobs:
           pip install imbalanced-learn
           pip install dagshub
           
-      # Run as a mlflow project
+      # Run as a mlflow project and capture run_id
       - name: Run mlflow project
+        id: mlflow_run
         run: |
-          mlflow run MLproject --env-manager=local
-      
-      # Get latest run_id from DagsHub MLflow
-      - name: Get latest MLflow run_id
-        run: |
-          RUN_ID=$(mlflow runs list --experiment-id 0 --order-by "start_time DESC" --max-results 1 | tail -n 1 | awk '{print $4}')
+          OUTPUT=$(mlflow run MLproject --env-manager=local 2>&1 | tee /dev/stderr)
+          RUN_ID=$(echo "$OUTPUT" | grep "MLFLOW_RUN_ID=" | cut -d'=' -f2)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Latest run_id: $RUN_ID"
+          echo "Captured run_id: $RUN_ID"
           
       # Build Docker Model
       - name: Build Docker Model
