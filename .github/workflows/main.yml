@@ -11,16 +11,7 @@ on:
 env:
   CSV_URL: "MLproject/dataset.csv"
   TARGET_VAR: "fraud"
-  # DagsHub MLflow tracking configuration
-  MLFLOW_TRACKING_URI: "https://dagshub.com/fathurazka/credit-card-fraud.mlflow"
-  MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
-  MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
-  # DagsHub Python library authentication (prevents OAuth prompt)
-  DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
-  # DagsHub S3-compatible artifact store configuration
-  AWS_ACCESS_KEY_ID: ${{ secrets.DAGSHUB_USERNAME }}
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.DAGSHUB_TOKEN }}
-  MLFLOW_S3_ENDPOINT_URL: "https://dagshub.com/fathurazka/credit-card-fraud.s3"
+  MLFLOW_TRACKING_URI: "file:./MLproject/mlruns"
 
 jobs:
   build:
@@ -42,8 +33,6 @@ jobs:
       - name: Check Env
         run: |
           echo $CSV_URL
-          echo "Tracking URI: $MLFLOW_TRACKING_URI"
-
       # Install mlflow
       - name: Install dependencies
         run: |
@@ -51,39 +40,32 @@ jobs:
           pip install mlflow  
           pip install imbalanced-learn
           pip install dagshub
-          pip install boto3  # Required for DagsHub S3-compatible artifact store
           
-      # Run as a mlflow project and capture run_id
+      # Run as a mlflow project
       - name: Run mlflow project
-        id: mlflow_run
         run: |
-          OUTPUT=$(mlflow run MLproject --env-manager=local 2>&1 | tee /dev/stderr)
-          RUN_ID=$(echo "$OUTPUT" | grep "MLFLOW_RUN_ID=" | cut -d'=' -f2)
-          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
-          echo "Captured run_id: $RUN_ID"
+          mlflow run MLproject --env-manager=local
+
+      # Save models to GitHub Repository
+      - name: Save mlruns to repo
+        run: |
+          git config --global user.name "${{ secrets.username }}"
+          git config --global user.email "${{ secrets.email }}"
+          git add MLproject/mlruns/
+          git commit -m "Save mlruns from CI run"
+          git push origin main
       
-      # Download model artifacts from DagsHub
-      - name: Download model artifacts
+      # Get latest run_id
+      - name: Get latest MLflow run_id
         run: |
-          python -c "
-          import mlflow
-          import os
+          RUN_ID=$(ls -td MLproject/mlruns/0/*/ | head -n 1 | cut -d'/' -f4)
+          echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
+          echo "Latest run_id: $RUN_ID"
           
-          run_id = os.environ['RUN_ID']
-          print(f'Downloading model for run: {run_id}')
-          
-          # Download artifacts to local directory
-          local_path = mlflow.artifacts.download_artifacts(
-              artifact_uri=f'runs:/{run_id}/model',
-              dst_path='./downloaded_model'
-          )
-          print(f'Model downloaded to: {local_path}')
-          "
-          
-      # Build Docker Model from local path
+      # Build Docker Model
       - name: Build Docker Model
         run: |
-          mlflow models build-docker --model-uri "./downloaded_model" --name "credit-card-fraud" 
+          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
 
       # Login to Docker Hub
       - name: Log in to Docker Hub
