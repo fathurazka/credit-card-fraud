@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/8a1bb00fff7949d3ba510aeb21d50f54/artifacts
+end_time: 1767608246787
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 8a1bb00fff7949d3ba510aeb21d50f54
+run_name: wistful-snipe-129
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767608198606
+status: 3
+tags: []
+user_id: runner
