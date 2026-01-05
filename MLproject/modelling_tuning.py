@@ -30,7 +30,13 @@ if __name__ == "__main__":
     
     #mlflow.set_experiment("Fraud_Detection")
     
-    # Initialize DagsHub - this automatically configures MLflow tracking URI
+    # Initialize DagsHub - authenticate with token if available (for CI environments)
+    dagshub_token = os.environ.get("DAGSHUB_USER_TOKEN")
+    if dagshub_token:
+        # Use token-based auth for CI (no OAuth prompt)
+        os.environ["DAGSHUB_TOKEN"] = dagshub_token
+        dagshub.auth.add_app_token(dagshub_token)
+    
     dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
     
     param_grid = [

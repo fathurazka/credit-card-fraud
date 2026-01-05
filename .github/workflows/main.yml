@@ -15,6 +15,8 @@ env:
   MLFLOW_TRACKING_URI: "https://dagshub.com/fathurazka/credit-card-fraud.mlflow"
   MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
   MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+  # DagsHub Python library authentication (prevents OAuth prompt)
+  DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
 
 jobs:
   build:
