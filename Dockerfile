@@ -21,14 +21,6 @@ COPY server.py ./server.py
 # Environment variables
 ENV MODEL_PATH=/app/model.joblib
 ENV PREPROCESSOR_PATH=/app/preprocessor.joblib
-ENV PORT=5000
 
-# Expose port
-EXPOSE 5000
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/ping || exit 1
-
-# Run server
+# Run server (PORT is set by Railway/Render automatically)
 CMD ["python", "server.py"]
