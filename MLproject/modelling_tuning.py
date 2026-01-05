@@ -28,7 +28,9 @@ if __name__ == "__main__":
     max_iter = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
 
     
-    #mlflow.set_experiment("Fraud_Detection")
+    # DagsHub configuration
+    DAGSHUB_USERNAME = "fathurazka"
+    DAGSHUB_REPO = "credit-card-fraud"
     
     # Initialize DagsHub - authenticate with token if available (for CI environments)
     dagshub_token = os.environ.get("DAGSHUB_USER_TOKEN")
@@ -36,13 +38,25 @@ if __name__ == "__main__":
         # Use token-based auth for CI (no OAuth prompt)
         os.environ["DAGSHUB_TOKEN"] = dagshub_token
         dagshub.auth.add_app_token(dagshub_token)
+        
+        # Configure S3-compatible artifact store for DagsHub
+        os.environ["AWS_ACCESS_KEY_ID"] = DAGSHUB_USERNAME
+        os.environ["AWS_SECRET_ACCESS_KEY"] = dagshub_token
+        os.environ["MLFLOW_S3_ENDPOINT_URL"] = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.s3"
     
-    # Initialize DagsHub MLflow integration
-    dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    # Set tracking URI
+    tracking_uri = f"https://dagshub.com/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}.mlflow"
+    mlflow.set_tracking_uri(tracking_uri)
     
-    # Explicitly set tracking URI to ensure artifacts are logged to DagsHub
-    mlflow.set_tracking_uri("https://dagshub.com/fathurazka/credit-card-fraud.mlflow")
+    # Set experiment with explicit artifact location
+    artifact_location = f"s3://dagshub/{DAGSHUB_USERNAME}/{DAGSHUB_REPO}"
+    mlflow.set_experiment(
+        experiment_name="Default",
+        artifact_location=artifact_location
+    )
+    
     print(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
+    print(f"Artifact Location: {artifact_location}")
     
     param_grid = [
         {
