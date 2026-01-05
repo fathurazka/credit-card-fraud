@@ -17,6 +17,10 @@ env:
   MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
   # DagsHub Python library authentication (prevents OAuth prompt)
   DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+  # DagsHub S3-compatible artifact store configuration
+  AWS_ACCESS_KEY_ID: ${{ secrets.DAGSHUB_USERNAME }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.DAGSHUB_TOKEN }}
+  MLFLOW_S3_ENDPOINT_URL: "https://dagshub.com/fathurazka/credit-card-fraud.s3"
 
 jobs:
   build:
@@ -47,6 +51,7 @@ jobs:
           pip install mlflow  
           pip install imbalanced-learn
           pip install dagshub
+          pip install boto3  # Required for DagsHub S3-compatible artifact store
           
       # Run as a mlflow project and capture run_id
       - name: Run mlflow project
