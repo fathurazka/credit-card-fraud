@@ -37,7 +37,12 @@ if __name__ == "__main__":
         os.environ["DAGSHUB_TOKEN"] = dagshub_token
         dagshub.auth.add_app_token(dagshub_token)
     
+    # Initialize DagsHub MLflow integration
     dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    
+    # Explicitly set tracking URI to ensure artifacts are logged to DagsHub
+    mlflow.set_tracking_uri("https://dagshub.com/fathurazka/credit-card-fraud.mlflow")
+    print(f"MLflow Tracking URI: {mlflow.get_tracking_uri()}")
     
     param_grid = [
         {
@@ -68,6 +73,8 @@ if __name__ == "__main__":
             artifact_path='model',
             input_example=input_example
         )
+        print(f"Model logged successfully to artifact path: 'model'")
+        print(f"Run ID: {mlflow.active_run().info.run_id}")
         
         
         testing_accuracy_score = accuracy_score(y_test, predictions)

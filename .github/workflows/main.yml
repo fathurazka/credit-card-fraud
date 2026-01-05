@@ -56,11 +56,29 @@ jobs:
           RUN_ID=$(echo "$OUTPUT" | grep "MLFLOW_RUN_ID=" | cut -d'=' -f2)
           echo "RUN_ID=$RUN_ID" >> $GITHUB_ENV
           echo "Captured run_id: $RUN_ID"
+      
+      # Download model artifacts from DagsHub
+      - name: Download model artifacts
+        run: |
+          python -c "
+          import mlflow
+          import os
           
-      # Build Docker Model
+          run_id = os.environ['RUN_ID']
+          print(f'Downloading model for run: {run_id}')
+          
+          # Download artifacts to local directory
+          local_path = mlflow.artifacts.download_artifacts(
+              artifact_uri=f'runs:/{run_id}/model',
+              dst_path='./downloaded_model'
+          )
+          print(f'Model downloaded to: {local_path}')
+          "
+          
+      # Build Docker Model from local path
       - name: Build Docker Model
         run: |
-          mlflow models build-docker --model-uri "runs:/$RUN_ID/model" --name "credit-card-fraud" 
+          mlflow models build-docker --model-uri "./downloaded_model" --name "credit-card-fraud" 
 
       # Login to Docker Hub
       - name: Log in to Docker Hub
