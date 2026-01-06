@@ -1,0 +1,10 @@
+artifact_location: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/models/m-e54fc096585c444cb3c57330b5846220/artifacts
+creation_timestamp: 1767697300085
+experiment_id: '0'
+last_updated_timestamp: 1767697302306
+model_id: m-e54fc096585c444cb3c57330b5846220
+model_type: null
+name: model
+source_run_id: 310609e9d37e44eb8918157c0a5adc7d
+status: 2
+status_message: null

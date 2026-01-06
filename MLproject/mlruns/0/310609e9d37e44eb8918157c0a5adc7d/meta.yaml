@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/310609e9d37e44eb8918157c0a5adc7d/artifacts
+end_time: 1767697303003
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 310609e9d37e44eb8918157c0a5adc7d
+run_name: bold-shad-546
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767697254836
+status: 3
+tags: []
+user_id: runner
