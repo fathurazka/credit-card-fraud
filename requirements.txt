@@ -1,4 +1,4 @@
-# Streamlit app dependencies
+# Streamlit deps
 streamlit
 pandas
 requests

@@ -4,14 +4,12 @@ from joblib import dump, load
 import requests
 import os
 
-# API URL - uses environment variable in production, localhost for development
-MODEL_API_URL = os.environ.get("MODEL_API_URL", "http://127.0.0.1:5005/invocations")
+# API URL
+MODEL_API_URL = os.environ.get("MODEL_API_URL", "https://credit-card-fraud-production.up.railway.app/invocations")
 
 st.title("Credit Card Fraud Detection", text_alignment="center")
 
 with st.form("fraud_detection_form"):
-    
-    # adding columns
     col1, col2 = st.columns(2)
     
     with col1:
@@ -31,7 +29,7 @@ with st.form("fraud_detection_form"):
 if submit_button:
     columns = pd.read_csv("MLproject/data_columns.csv").columns.tolist()
     
-    # Create input DataFrame with proper column order
+    # Create input DataFrame
     input_data = pd.DataFrame([[
         distance_from_home,
         distance_from_last_transaction,

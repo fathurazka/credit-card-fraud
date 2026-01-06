@@ -1,6 +1,3 @@
-# Lightweight Docker image for Credit Card Fraud Detection API
-# Size: ~150MB (vs ~1.5GB for MLflow's default image)
-
 FROM python:3.11-slim
 
 WORKDIR /app
@@ -22,5 +19,5 @@ COPY server.py ./server.py
 ENV MODEL_PATH=/app/model.joblib
 ENV PREPROCESSOR_PATH=/app/preprocessor.joblib
 
-# Run server (PORT is set by Railway/Render automatically)
+# Run server (PORT is set by Railway)
 CMD ["python", "server.py"]
