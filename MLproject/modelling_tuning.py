@@ -28,10 +28,11 @@ if __name__ == "__main__":
     max_iter = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
 
     
-    #mlflow.set_experiment("Fraud_Detection")
+    # Initialize DagsHub for MLflow tracking
+    dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
     
-    mlflow.set_tracking_uri("file:./mlruns")
-    #dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    # Set experiment name
+    mlflow.set_experiment("Fraud_Detection")
     
     param_grid = [
         {
@@ -82,4 +83,5 @@ if __name__ == "__main__":
             "testing_score": testing_score
         })
         
-        #mlflow.log_params(clf.best_params_)
+        # Log best parameters from GridSearchCV
+        mlflow.log_params(clf.best_params_)
