@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/3c69dcb8c2cd4cbd8d796a3437a02d96/artifacts
+end_time: 1767696955053
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 3c69dcb8c2cd4cbd8d796a3437a02d96
+run_name: brawny-ape-40
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767696906630
+status: 3
+tags: []
+user_id: runner
