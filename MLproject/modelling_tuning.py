@@ -28,8 +28,13 @@ if __name__ == "__main__":
     max_iter = int(sys.argv[1]) if len(sys.argv) > 1 else 1000
 
     
-    # Initialize DagsHub for MLflow tracking
-    dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    # Check if DagsHub credentials are available
+    dagshub_token = os.environ.get('DAGSHUB_USER_TOKEN') or os.environ.get('MLFLOW_TRACKING_PASSWORD')
+    
+    if dagshub_token:
+        dagshub.init(repo_owner='fathurazka', repo_name='credit-card-fraud', mlflow=True)
+    else:
+        mlflow.set_tracking_uri("file:./mlruns")
     
     # Set experiment name
     mlflow.set_experiment("Fraud_Detection")
