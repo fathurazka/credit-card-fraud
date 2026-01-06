@@ -102,12 +102,11 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_HUB_USERNAME }}/credit-card-fraud:latest
-
       # Trigger Railway to redeploy with new image
       - name: Deploy to Railway
         run: |
           npm install -g @railway/cli
+          export RAILWAY_TOKEN="${{ secrets.RAILWAY_TOKEN }}"
+          railway whoami
           railway link --project ${{ secrets.RAILWAY_PROJECT_ID }}
           railway redeploy --service credit-card-fraud --yes
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
