@@ -1,0 +1,14 @@
+artifact_uri: file:///home/runner/work/credit-card-fraud/credit-card-fraud/MLproject/mlruns/0/8661ad598559433ab35f88be56c6f9d7/artifacts
+end_time: 1767768695945
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 8661ad598559433ab35f88be56c6f9d7
+run_name: nosy-gnat-159
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1767768646993
+status: 3
+tags: []
+user_id: runner
