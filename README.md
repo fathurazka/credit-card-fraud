@@ -5,7 +5,6 @@ A complete end-to-end Machine Learning project with MLOps practices, from model 
 ## 🌐 Live Demo
 
 - **Web App**: [Streamlit App](https://cc-fraud-fathurazka.streamlit.app/)
-- **API**: [Railway](https://credit-card-fraud-production.up.railway.app)
 
 ## 📋 Project Overview
 
@@ -59,12 +58,6 @@ This project predicts whether a credit card transaction is fraudulent based on t
    ```bash
    streamlit run app.py
    ```
-
-### Run with Docker
-
-```bash
-docker run -p 5000:5000 fathurazka/credit-card-fraud:latest
-```
 
 ## 📁 Project Structure
 
