@@ -1,7 +1,3 @@
-"""
-Lightweight FastAPI server for Credit Card Fraud Detection
-Replaces MLflow's heavy serving infrastructure
-"""
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import List
@@ -42,10 +38,6 @@ def health():
 
 @app.post("/invocations")
 def predict(request: PredictionRequest):
-    """
-    Prediction endpoint - compatible with MLflow's format
-    Expects preprocessed data in 'inputs' format
-    """
     inputs = np.array(request.inputs)
     predictions = model.predict(inputs)
     return {"predictions": predictions.tolist()}
